@@ -1,0 +1,101 @@
+DIACONESCU OANA - 323 CD 
+
+
+------TASK 1---------
+
+bruteforce_singlebyte_xor
+  * Parameter: int* img; returns the key and the line number where the 
+    string was found (the line number is placed in the m.s. 16 bits of 
+    eax, the key is placed in al)
+  * The function works by trying all keys 0..255 and decrypting each 
+    byte of the matrix through a line by line traversal 
+  * After decoding one byte, the byte is compared to a character from 
+    the string 'revient', keeping track of how many consecutive 
+    characters are matched 
+  * When all characters of 'revient' are matched, the key is found and 
+    the iterations stop 
+    
+
+task1_print
+  * Parameters: the line number and the key previously found; prints   
+    the decoded string found at the line in question
+  * The offset to the line is: line_number * img_width * 4
+  * Characters from the line are decoded until reaching '0' or the end
+    of the line 
+  * Finally, it prints the key and the line number 
+
+------TASK 2---------
+
+xor_encryption
+  * Parameters: img and the return value of 'bruteforce_singlebyte_xor'
+  * First, the old key is used to decode the image 
+  * The string is inserted character by character on the line next to 
+    the one calculated at task 1
+  * The new key is calculated using the formula: floor((2 * old_key + 
+    3) / 5) - 4 and the whole matrix is encoded again using the new key
+  * Finally, the print_image function is used to print the new matrix
+
+------TASK 3---------
+
+morse_encrypt
+  * Parameters: img, the message to encrypt and the index of insertion
+  * The address of insertion is calculated as: img + 4*index 
+  * In order to encode each character from the string, its ASCII value
+    is used to determine the type of encoding applicable
+  * The ',' char is encoded separately; Uppercase letters of the 
+    alphabet are encoded by using an 'alphabet' variable which stores 
+    the Morse code for each letter; Each letter has 4 bytes reserved 
+    in the 'alphabet' array, so in order to access a specific Morse
+    code, the following formula is used: (ASCII_code_of_char - 65)* 4
+  * For characters 0-5 and 6-9, the ASCII codes can be used to 
+    determine the number of dots and dashes to insert; The 
+    correlations are specified in the comments
+  * The final img is printed at the end using print_image 
+
+insert_symbols
+  * Parameters: symbol to be inserted, the address of insertion and    
+    the number of symbols to insert 
+  * Function used to insert a certain number of symbols at a specified 
+    address; it also updates the address of insertion, which is stored 
+    in eax 
+  * Used to encode characters 0-9
+
+------TASK 4--------- 
+
+lsb_encode
+  * Parameters: img, offset, string to insert 
+  * The characters from the string are encoded one by one, bit by bit
+  * Each bit from a char is brought to MSB position and AND-ed with 
+    10000000b in order to obtain its value: 0(if result is 0) or 1(if 
+    result is 128)
+  * Based on the value of the current bit, the current byte from the   
+    matrix is either AND-ed with 11111110b (to make LSB 0) or OR-ed 
+    with 00000001b (to make LSB 1)
+  * Iterations are performed until encoding the null character 
+
+------TASK 5--------- 
+
+lsb_decode
+  * Parameters: img and offset
+  * Groups of 8 bits are decoded and converted to characters 
+  * In order to build a char, we extract 8 consecutive LSBs and 
+    place them in their coresponding positions by shifting them to 
+    the left with i positions, where i is the iteration index (7..0)
+  * Iterations are repeated until the last decoded character is null
+  * Characters are printed as they are calculated
+
+------TASK 6--------- 
+
+blur
+ * Parameters: img 
+ * Iterate through all matrix values except the first and last rows/   
+   columns (the sides)
+ * The avarage between each value and its neighbours is calculated and
+   stored on the same dword inside the matrix as the actual value
+ * We know that each value in the matrix takes up one byte and is 
+   stored on 4 bytes, so we can use the byte adjacent to our value 
+   in order to temporarly store the avarage 
+*  We iterate through the matrix again and replace each value by its 
+   corresponding avarage, making sure to clear the next byte 
+
+  
